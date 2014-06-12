@@ -1,0 +1,45 @@
+Fator de bloqueio de luminosidade (bl)
+	CL (Céu limpo)            = 1,00
+	PN (Parcialmente nublado) = 0,75
+	N (Nublado)               = 0,50
+	NC (Nuvens carregadas)    = 0,25
+
+Horas (t)
+	0..23
+
+Fator luminosidade (lm)
+	0..1
+	// 1 = 12t && CLbl
+	// 0 = 0..4t || 21..23t
+
+Variação do fator de luminosidade no tempo (lm/t)
+	0..4h = 0,0
+	5     = 0,1
+	6     = 0,3
+	7     = 0,6
+	8     = 0,8
+	9     = 0,9
+	10    = 1,0
+	11    = 1,0
+	12    = 1,0
+	13    = 1,0
+	14    = 1,0
+	15    = 0,8
+	16    = 0,8
+	17    = 0,5
+	18    = 0,4
+	19    = 0,2
+	20    = 0,1
+
+Incidencia solar (is)
+	D (Direta)   = 1,0
+	I (Indireta) = 0,9
+	O (Oposta)   = 0,7
+
+Tipo de lampada (tl)
+	F (Fluorescente) = 0,5lm | 15W
+	L (LED           = 0,2lm | 6W
+
+Cortina (c)
+	A (Aberta)  = 1,0
+	F (Fechada) = 0,1

@@ -1,0 +1,27 @@
+relogio
+	out
+		t random()
+
+ambiente
+	in
+		t,bl
+	out
+		lm
+
+comodo
+	attr
+		posJanela
+	in
+		t
+	out
+		is
+
+lampada
+	in
+	out
+
+sensor luminosidade
+	in
+		is,lm
+	out
+		qtdLm
