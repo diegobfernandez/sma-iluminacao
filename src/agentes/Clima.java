@@ -12,7 +12,7 @@ public enum Clima {
         this.index = index;
     }
 
-    public double index() { 
+    public double fator() {
         return index; 
     }
 }
