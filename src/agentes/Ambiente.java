@@ -1,38 +1,55 @@
 package agentes;
 
+import jade.core.AID;
 import jade.core.Agent;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import jade.domain.DFService;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
+import jade.domain.FIPAException;
+import jade.lang.acl.ACLMessage;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Ambiente extends Agent {
-    public static final Map<Integer,Double> variacaoLuminosidadeNoTempo;
-    
-    static {
-        Map<Integer,Double> vlt = new HashMap<>();
-        vlt.put(5, 0.1);
-        vlt.put(6, 0.3);
-        vlt.put(7, 0.6);
-        vlt.put(8, 0.8);
-        vlt.put(9, 0.9);
-        vlt.put(10, 1.0);
-        vlt.put(11, 1.0);
-        vlt.put(12, 1.0);
-        vlt.put(13, 1.0);
-        vlt.put(14, 1.0);
-        vlt.put(15, 0.8);
-        vlt.put(16, 0.8);
-        vlt.put(17, 0.5);
-        vlt.put(18, 0.4);
-        vlt.put(19, 0.2);
-        vlt.put(20, 0.1);
-        variacaoLuminosidadeNoTempo = Collections.unmodifiableMap(vlt);
-    };
-    
+
+    public double luminosidade;
+
     @Override
     protected void setup() {
         Object[] args = getArguments();
-        int hour = Integer.parseInt((String)args[0]);
-        Clima clima = Clima.valueOf((String)args[1]);
+        int hora = Integer.parseInt((String) args[0]);
+        Clima clima = Clima.valueOf((String) args[1]);
+        luminosidade = VariacaoLuminosidadeNoTempo.getLuminosidade(hora) * clima.fator();
+        Collection<AID> aids = encontreAgentesInteressadosIluminacao();
+        ACLMessage msg = new ACLMessage();
+        msg.setContent(hora + ":" + clima.toString());
+        for(AID aid : aids) {
+            msg.addReceiver(aid);
+        }
+        
+        this.send(msg);
+    }
+
+    private Collection<AID> encontreAgentesInteressadosIluminacao() {
+        DFAgentDescription template = new DFAgentDescription();
+        ServiceDescription sd = new ServiceDescription();
+        sd.setType("interessado-iluminacao");
+        template.addServices(sd);
+        try {
+            DFAgentDescription[] agentServices = DFService.search(this, template);
+            List<AID> aids = new ArrayList<>();
+            for (DFAgentDescription dfd : agentServices) {
+                aids.add(dfd.getName());
+            }
+            
+            return aids;
+        } catch (FIPAException ex) {
+            Logger.getLogger(Ambiente.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return new ArrayList<>(0);
     }
 }
