@@ -1,5 +1,6 @@
 package agentes;
 
+import behaviours.AmbienteAtualizaInfoBehaviour;
 import jade.core.Agent;
 
 public class Ambiente extends Agent {
@@ -8,6 +9,6 @@ public class Ambiente extends Agent {
 
     @Override
     protected void setup() {
-        this.addBehaviour(new AtualizaAmbienteBehaviour(this, 5000));
+        this.addBehaviour(new AmbienteAtualizaInfoBehaviour(this, 10000));
     }
 }

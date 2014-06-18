@@ -1,7 +1,10 @@
 package agentes;
 
+import behaviours.LampadaNotificaAdicaoBehaviour;
+import behaviours.ComodoAlteraEstadoLampadaBehaviour;
 import jade.core.AID;
 import jade.core.Agent;
+import messages.LampadaRegistraACLMessage;
 
 public class Lampada extends Agent {
     private LampadaInfo lampadaInfo;
@@ -16,12 +19,12 @@ public class Lampada extends Agent {
         Object[] args = getArguments();
         lampadaInfo = new LampadaInfo(Double.parseDouble(args[1].toString()), Integer.parseInt(args[2].toString()));
         AID aidComodo = new AID(args[0].toString(), AID.ISLOCALNAME);
-        
-        this.addBehaviour(new NotificaLampadaAdicionadaBehaviour(aidComodo, this));
-        this.addBehaviour(new AlteraEstadoLampadaBehaviour(this));
+        send(new LampadaRegistraACLMessage(aidComodo, getLampadaInfo()));
+        this.addBehaviour(new LampadaNotificaAdicaoBehaviour(aidComodo, this));
+        this.addBehaviour(new ComodoAlteraEstadoLampadaBehaviour(this));
     }
 
-    LampadaInfo getLampadaInfo() {
+    public LampadaInfo getLampadaInfo() {
         return lampadaInfo;
     }
 

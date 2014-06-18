@@ -1,4 +1,4 @@
-package agentes;
+package models;
 
 public enum Clima {
     CeuLimpo(1),

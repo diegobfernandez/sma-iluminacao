@@ -1,5 +1,8 @@
 package agentes;
 
+import utils.MapSorting;
+import messages.ComodoAlteraEstadoLampadaACLMessage;
+import behaviours.ComodoRegistraLampadaBehaviour;
 import jade.core.AID;
 import jade.core.Agent;
 import java.util.ArrayList;
@@ -24,7 +27,7 @@ public class Comodo extends Agent {
     @Override
     protected void setup() {
         this.addBehaviour(new ComodoAtualizaLuminosidade(this));
-        this.addBehaviour(new RegistraLampadaBehaviour(this));
+        this.addBehaviour(new ComodoRegistraLampadaBehaviour(this));
     }
 
     private void acendeLampadas() {
@@ -45,13 +48,15 @@ public class Comodo extends Agent {
                 lampadasApagadas.remove(entry.getKey());
             }
         }
+        if (getState() != Agent.AP_ACTIVE && getState() != Agent.AP_DELETED)
+            doActivate();
         
         for (AID aid : lampadasAcessas) {
-            this.send(new AlteraEstadoLampadaACLMessage(aid, true));
+            this.send(new ComodoAlteraEstadoLampadaACLMessage(aid, true));
         }
         
         for (AID aid : lampadasApagadas) {
-            this.send(new AlteraEstadoLampadaACLMessage(aid, false));
+            this.send(new ComodoAlteraEstadoLampadaACLMessage(aid, false));
         }
     }
 

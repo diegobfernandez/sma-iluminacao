@@ -1,5 +1,8 @@
 package agentes;
 
+import models.Sentido;
+import behaviours.SensorRecebeLuminosidadeExternaBehaviour;
+import behaviours.SensorRecebeLuminosidadeInternaBehaviour;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.domain.DFService;
@@ -42,10 +45,10 @@ public class Sensor extends Agent {
             sentido = Sentido.valueOf(args[1].toString());
             aidComodo = new AID(args[0].toString(), AID.ISLOCALNAME);
             
-            DFService.register(this, new AtualizaAmbienteDFAgentDescription(getAID()));
+            DFService.register(this, new AmbienteAtualizaInfoDFAgentDescription(getAID()));
             
             this.addBehaviour(new SensorRecebeLuminosidadeExternaBehaviour(this));
-            this.addBehaviour(new SensorRecebeLuminosidadeInternaBehaviour(this));
+            //this.addBehaviour(new SensorRecebeLuminosidadeInternaBehaviour(this));
         } catch (FIPAException ex) {
             Logger.getLogger(Sensor.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
@@ -53,7 +56,7 @@ public class Sensor extends Agent {
         }
     }
 
-    AID getComodo() {
+    public AID getComodo() {
         return aidComodo;
     }
 }
