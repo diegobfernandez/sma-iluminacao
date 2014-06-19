@@ -1,35 +1,41 @@
 package agentes;
 
-import behaviours.LampadaNotificaAdicaoBehaviour;
-import behaviours.ComodoAlteraEstadoLampadaBehaviour;
 import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.CyclicBehaviour;
+import jade.core.behaviours.OneShotBehaviour;
+import jade.lang.acl.ACLMessage;
 import messages.LampadaRegistraACLMessage;
 
 public class Lampada extends Agent {
-    private LampadaInfo lampadaInfo;
     private boolean acesa;
-    
-    public boolean estaAcesa() {
-        return acesa;
-    }
     
     @Override
     protected void setup() {
         Object[] args = getArguments();
-        lampadaInfo = new LampadaInfo(Double.parseDouble(args[1].toString()), Integer.parseInt(args[2].toString()));
-        AID aidComodo = new AID(args[0].toString(), AID.ISLOCALNAME);
-        send(new LampadaRegistraACLMessage(aidComodo, getLampadaInfo()));
-        this.addBehaviour(new LampadaNotificaAdicaoBehaviour(aidComodo, this));
-        this.addBehaviour(new ComodoAlteraEstadoLampadaBehaviour(this));
-    }
+        final LampadaInfo lampadaInfo = new LampadaInfo(Double.parseDouble(args[1].toString()), Integer.parseInt(args[2].toString()));
+        final AID aidComodo = new AID(args[0].toString(), AID.ISLOCALNAME);
+        
+        send(new LampadaRegistraACLMessage(aidComodo, lampadaInfo));
+        
+        this.addBehaviour(new OneShotBehaviour() {
+            @Override
+            public void action() {
+                myAgent.send(new LampadaRegistraACLMessage(aidComodo, lampadaInfo));
+            }
+        });
+        
+        this.addBehaviour(new CyclicBehaviour() {
+            @Override
+            public void action() {
+                ACLMessage mensagem = myAgent.blockingReceive();
+                if (mensagem == null || !"altera-estado-lampada".equals(mensagem.getOntology())) {
+                    return;
+                }
 
-    public LampadaInfo getLampadaInfo() {
-        return lampadaInfo;
-    }
-
-    public void setEstaAcesa(boolean acesa) {
-        this.acesa = acesa;
-        System.out.println("Lampada " + getName() + " está " + acesa);
+                acesa = Boolean.parseBoolean(mensagem.getContent());
+                System.out.println(acesa);
+            }   
+        });
     }
 }
