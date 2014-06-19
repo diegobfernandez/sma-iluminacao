@@ -1,14 +1,18 @@
 package agentes;
 
 import models.Sentido;
-import behaviours.SensorRecebeLuminosidadeExternaBehaviour;
-import behaviours.SensorRecebeLuminosidadeInternaBehaviour;
 import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.CyclicBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAException;
+import jade.lang.acl.ACLMessage;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import messages.SensorAtualizaLuminosidadeACLMessage;
+import models.AmbienteInfo;
+import models.IncidenciaSolar;
+import models.VariacaoIncidenciaSolarNoTempo;
 
 public class Sensor extends Agent {
     private double luminosidadeExterna = 0;
@@ -47,8 +51,31 @@ public class Sensor extends Agent {
             
             DFService.register(this, new AmbienteAtualizaInfoDFAgentDescription(getAID()));
             
-            this.addBehaviour(new SensorRecebeLuminosidadeExternaBehaviour(this));
-            //this.addBehaviour(new SensorRecebeLuminosidadeInternaBehaviour(this));
+            this.addBehaviour(new CyclicBehaviour() {
+                @Override
+                public void action() {
+                    try {
+                        ACLMessage mensagem = myAgent.blockingReceive();
+                        if (mensagem == null) {
+                            return;
+                        }
+
+                        if ("ambiente".equals(mensagem.getOntology())) {
+                            System.out.println("recebeu luminosidade externa");
+                            AmbienteInfo infoAmbiente = new AmbienteInfo(mensagem.getContent());
+                            IncidenciaSolar incidenciaSolar = VariacaoIncidenciaSolarNoTempo.getIncidenciaSolar(infoAmbiente.getHora(), getSentido());
+                            setLuminosidadeExterna(infoAmbiente.getLuminosidade() * incidenciaSolar.fator());
+                            myAgent.send(new SensorAtualizaLuminosidadeACLMessage(getComodo(), getLuminosidade()));
+                        }
+
+                        if ("luminosidade-interna".equals(mensagem.getOntology())) {
+                            setLuminosidadeInterna(Double.parseDouble(mensagem.getContent()));
+                        }
+                    } catch (Exception ex) {
+                        Logger.getLogger(Sensor.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
         } catch (FIPAException ex) {
             Logger.getLogger(Sensor.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {

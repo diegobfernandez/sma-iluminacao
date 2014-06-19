@@ -1,10 +1,12 @@
 package agentes;
 
+import models.LampadaInfo;
 import utils.MapSorting;
 import messages.ComodoAlteraEstadoLampadaACLMessage;
-import behaviours.ComodoRegistraLampadaBehaviour;
 import jade.core.AID;
 import jade.core.Agent;
+import jade.core.behaviours.CyclicBehaviour;
+import jade.lang.acl.ACLMessage;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,8 +28,32 @@ public class Comodo extends Agent {
     
     @Override
     protected void setup() {
-        this.addBehaviour(new ComodoAtualizaLuminosidade(this));
-        this.addBehaviour(new ComodoRegistraLampadaBehaviour(this));
+        this.addBehaviour(new CyclicBehaviour() {
+            @Override
+            public void action() {
+                ACLMessage mensagem = myAgent.blockingReceive();
+                if (mensagem == null || !"luminosidade".equals(mensagem.getOntology())) {
+                    return;
+                }
+
+                Double luminosidade = Double.parseDouble(mensagem.getContent());
+                setLuminosidade(luminosidade);
+            }
+        });
+        
+        this.addBehaviour(new CyclicBehaviour() {
+            @Override
+            public void action() {
+                ACLMessage mensagem = myAgent.blockingReceive();
+                if (mensagem == null || !"lampada-info".equals(mensagem.getOntology())) {
+                    return;
+                }
+
+                LampadaInfo li = new LampadaInfo(mensagem.getContent());
+                System.out.println(mensagem.getSender());
+                registraLampada(mensagem.getSender(), li);
+            }
+        });
     }
 
     private void acendeLampadas() {
