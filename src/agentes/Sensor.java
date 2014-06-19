@@ -68,8 +68,9 @@ public class Sensor extends Agent {
                             myAgent.send(new SensorAtualizaLuminosidadeACLMessage(getComodo(), getLuminosidade()));
                         }
 
-                        if ("luminosidade-interna".equals(mensagem.getOntology())) {
+                        if (getComodo().equals(mensagem.getSender()) && "luminosidade-interna".equals(mensagem.getOntology())) {
                             setLuminosidadeInterna(Double.parseDouble(mensagem.getContent()));
+                            myAgent.send(new SensorAtualizaLuminosidadeACLMessage(getComodo(), getLuminosidade()));
                         }
                     } catch (Exception ex) {
                         Logger.getLogger(Sensor.class.getName()).log(Level.SEVERE, null, ex);
